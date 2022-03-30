@@ -34,10 +34,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	c := make(chan seed)
+	c := make(chan seed, loop)
 
+	// add a cool msg for the user here
 
-	for i := 0; i < loop; i++ {
+	for i := 0; i < cap(c); i++ {
 		// reduce the chance of mysql deadlock hehe
 		// we plus three as i could be 0 lol
 		// this needs work
@@ -46,8 +47,8 @@ func main() {
 		}
 		go runspec(path, c)
 	}
-	for {
-		s := <-c 
+
+		for s := range c {
 		if s.pass {
 		 color.Green(s.id)
 		} else {
@@ -60,9 +61,10 @@ func runspec(path string, c chan seed) {
 	cmd := exec.Command("rspec", path)
 	o, err := cmd.Output()
 	if err != nil {
-	c <- seed{id: string(extractSeed(err.Error())), pass: false} 
+	  c <- seed{id: string(extractSeed(err.Error())), pass: false} 
+		return
 	}
-	c <- seed{id: string(extractSeed(string(o))), pass: true} 
+	  c <- seed{id: string(extractSeed(string(o))), pass: true} 
 }
 
 func extractSeed(s string) string {
