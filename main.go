@@ -38,7 +38,8 @@ func main() {
 
 	for i := 0; i < loop; i++ {
 		// reduce the chance of mysql deadlock hehe
-		// we plus one as i could be 0 lol
+		// we plus three as i could be 0 lol
+		// this needs work
 		time.Sleep(time.Second * time.Duration(i+3))
 		go runspec(path, c)
 	}
