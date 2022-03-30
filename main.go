@@ -6,13 +6,12 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/fatih/color"
 )
 
 type seed struct {
-	id string
+	id   string
 	pass bool
 }
 
@@ -21,6 +20,10 @@ type seed struct {
 // slosh [cmd] [loop]
 func main() {
 
+
+	// do this properly in the morning pls
+	// db := flag.Bool("db", true, "speed up specs if you don't need the db :)")
+	// flag.Parse()
 	s := os.Args[1:]
 	if len(s) != 2 {
 		fmt.Println("usage: slosh [path/to/rspec/file] [loop]")
@@ -42,29 +45,32 @@ func main() {
 		// reduce the chance of mysql deadlock hehe
 		// we plus three as i could be 0 lol
 		// this needs work
-		if i > 0 {
-		time.Sleep(time.Second * time.Duration(i+2))
-		}
+		// check if we need the db doe
+		// if i > 0  {
+		// 	time.Sleep(time.Second * time.Duration(i+2))
+		// }
 		go runspec(path, c)
 	}
 
-		for s := range c {
+	for i := 0; i < cap(c); i++ {
+		s := <-c
 		if s.pass {
-		 color.Green(s.id)
+			color.Green(s.id)
 		} else {
-		 color.Red(s.id)
+			color.Red(s.id)
 		}
 	}
 }
 
 func runspec(path string, c chan seed) {
 	cmd := exec.Command("rspec", path)
-	o, err := cmd.Output()
+	o, err := cmd.CombinedOutput()
+
 	if err != nil {
-	  c <- seed{id: string(extractSeed(err.Error())), pass: false} 
+		c <- seed{id: string(extractSeed(string(o))), pass: false}
 		return
 	}
-	  c <- seed{id: string(extractSeed(string(o))), pass: true} 
+	c <- seed{id: string(extractSeed(string(o))), pass: true}
 }
 
 func extractSeed(s string) string {
