@@ -17,7 +17,7 @@ type seed struct {
 }
 
 // lol
-// /Users/edward.sansome/code/slosh/slosh /Users/edward.sansome/work/api/spec/documentation/companies/customers/update_spec.rb 1
+// /Users/edward.sansome/code/slosh/slosh /path/to/rspec/file 1
 // slosh [cmd] [loop]
 func main() {
 
