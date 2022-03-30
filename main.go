@@ -36,11 +36,14 @@ func main() {
 
 	c := make(chan seed)
 
+
 	for i := 0; i < loop; i++ {
 		// reduce the chance of mysql deadlock hehe
 		// we plus three as i could be 0 lol
 		// this needs work
-		time.Sleep(time.Second * time.Duration(i+3))
+		if i > 0 {
+		time.Sleep(time.Second * time.Duration(i+2))
+		}
 		go runspec(path, c)
 	}
 	for {
