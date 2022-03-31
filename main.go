@@ -17,9 +17,9 @@ type seed struct {
 }
 
 func main() {
- 	db := flag.Bool("db", true, "speed up specs if you don't need the db :)")
- 	path := flag.String("path", "", "path to the rspec file you want to slosh")
- 	loop := flag.Int("loop", 3, "how many times you would like to run the specs")
+	db := flag.Bool("db", true, "speed up specs if you don't need the db :)")
+	path := flag.String("path", "", "path to the rspec file you want to slosh")
+	loop := flag.Int("loop", 3, "how many times you would like to run the specs")
 	flag.Parse()
 
 	if *path == "" {
@@ -35,7 +35,7 @@ func main() {
 		// reduce the chance of mysql deadlock hehe
 		// we plus three as i could be 0 lol
 		// this should be improved as super hacky
-		if i > 0 && *db  {
+		if i > 0 && *db {
 			time.Sleep(time.Second * time.Duration(i+2))
 		}
 		go runspec(*path, c)
