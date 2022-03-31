@@ -36,7 +36,7 @@ func main() {
 		// we plus three as i could be 0 lol
 		// this should be improved as super hacky
 		if i > 0 && *db {
-			time.Sleep(time.Second * time.Duration(i+2))
+			time.Sleep(time.Second * time.Duration(i+3))
 		}
 		go runspec(*path, c)
 	}
