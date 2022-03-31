@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
 )
 
@@ -30,8 +31,10 @@ func main() {
 	}
 
 	c := make(chan seed, *loop)
+	s := spinner.New(spinner.CharSets[14], 50*time.Millisecond)
+	s.Start()
 
-	// add a cool msg for the user here
+	fmt.Println("beep boop, starting up rspec")
 
 	for i := 0; i < cap(c); i++ {
 		// reduce the chance of mysql deadlock hehe
@@ -51,6 +54,7 @@ func main() {
 			color.Red(s.id)
 		}
 	}
+	s.Stop()
 }
 
 func runspec(path string, c chan seed) {
