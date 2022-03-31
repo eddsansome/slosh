@@ -1,11 +1,12 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
+	"time"
 
 	"github.com/fatih/color"
 )
@@ -15,41 +16,29 @@ type seed struct {
 	pass bool
 }
 
-// lol
-// /Users/edward.sansome/code/slosh/slosh /path/to/rspec/file 1
-// slosh [cmd] [loop]
 func main() {
+ 	db := flag.Bool("db", true, "speed up specs if you don't need the db :)")
+ 	path := flag.String("path", "", "path to the rspec file you want to slosh")
+ 	loop := flag.Int("loop", 3, "how many times you would like to run the specs")
+	flag.Parse()
 
-
-	// do this properly in the morning pls
-	// db := flag.Bool("db", true, "speed up specs if you don't need the db :)")
-	// flag.Parse()
-	s := os.Args[1:]
-	if len(s) != 2 {
-		fmt.Println("usage: slosh [path/to/rspec/file] [loop]")
+	if *path == "" {
+		fmt.Println("please supply path to spec file")
 		os.Exit(1)
 	}
 
-	path := s[0]
-	loop, err := strconv.Atoi(s[1])
-	if err != nil {
-		fmt.Println("usage: slosh [path/to/rspec/file] [loop]")
-		os.Exit(1)
-	}
-
-	c := make(chan seed, loop)
+	c := make(chan seed, *loop)
 
 	// add a cool msg for the user here
 
 	for i := 0; i < cap(c); i++ {
 		// reduce the chance of mysql deadlock hehe
 		// we plus three as i could be 0 lol
-		// this needs work
-		// check if we need the db doe
-		// if i > 0  {
-		// 	time.Sleep(time.Second * time.Duration(i+2))
-		// }
-		go runspec(path, c)
+		// this should be improved as super hacky
+		if i > 0 && *db  {
+			time.Sleep(time.Second * time.Duration(i+2))
+		}
+		go runspec(*path, c)
 	}
 
 	for i := 0; i < cap(c); i++ {
