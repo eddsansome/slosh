@@ -56,13 +56,14 @@ func runspec(path string, c chan seed) {
 	o, err := cmd.CombinedOutput()
 
 	if err != nil {
-		c <- seed{id: string(extractSeed(string(o))), pass: false}
+		c <- seed{id: extractSeed(o), pass: false}
 		return
 	}
-	c <- seed{id: string(extractSeed(string(o))), pass: true}
+	c <- seed{id: extractSeed(o), pass: true}
 }
 
-func extractSeed(s string) string {
+func extractSeed(o []byte) string {
+	s := string(o)
 	st := strings.Split(s, "Randomized with seed ")
 	sa := strings.Split(st[1], "\n")
 	return fmt.Sprintf("seed %s\n", sa[0])
