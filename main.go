@@ -19,6 +19,8 @@ type seed struct {
 func main() {
 	db := flag.Bool("db", true, "speed up specs if you don't need the db :)")
 	path := flag.String("path", "", "path to the rspec file you want to slosh")
+	// we should probably set a max value for now, until we can sort out the deadlocking issue
+	// otherwise each run will take n+3 seconds to complete, which will get super slow
 	loop := flag.Int("loop", 3, "how many times you would like to run the specs")
 	flag.Parse()
 
