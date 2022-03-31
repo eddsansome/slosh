@@ -1,10 +1,10 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
 	"strings"
 	"time"
 
@@ -12,59 +12,54 @@ import (
 )
 
 type seed struct {
-	id string
+	id   string
 	pass bool
 }
 
-// lol
-// /Users/edward.sansome/code/slosh/slosh /path/to/rspec/file 1
-// slosh [cmd] [loop]
 func main() {
+ 	db := flag.Bool("db", true, "speed up specs if you don't need the db :)")
+ 	path := flag.String("path", "", "path to the rspec file you want to slosh")
+ 	loop := flag.Int("loop", 3, "how many times you would like to run the specs")
+	flag.Parse()
 
-	s := os.Args[1:]
-	if len(s) != 2 {
-		fmt.Println("usage: slosh [path/to/rspec/file] [loop]")
+	if *path == "" {
+		fmt.Println("please supply path to spec file")
 		os.Exit(1)
 	}
 
-	path := s[0]
-	loop, err := strconv.Atoi(s[1])
-	if err != nil {
-		fmt.Println("usage: slosh [path/to/rspec/file] [loop]")
-		os.Exit(1)
-	}
-
-	c := make(chan seed, loop)
+	c := make(chan seed, *loop)
 
 	// add a cool msg for the user here
 
 	for i := 0; i < cap(c); i++ {
 		// reduce the chance of mysql deadlock hehe
 		// we plus three as i could be 0 lol
-		// this needs work
-		if i > 0 {
-		time.Sleep(time.Second * time.Duration(i+2))
+		// this should be improved as super hacky
+		if i > 0 && *db  {
+			time.Sleep(time.Second * time.Duration(i+2))
 		}
-		go runspec(path, c)
+		go runspec(*path, c)
 	}
 
-		for s := range c {
+	for i := 0; i < cap(c); i++ {
+		s := <-c
 		if s.pass {
-		 color.Green(s.id)
+			color.Green(s.id)
 		} else {
-		 color.Red(s.id)
+			color.Red(s.id)
 		}
 	}
 }
 
 func runspec(path string, c chan seed) {
 	cmd := exec.Command("rspec", path)
-	o, err := cmd.Output()
+	o, err := cmd.CombinedOutput()
+
 	if err != nil {
-	  c <- seed{id: string(extractSeed(err.Error())), pass: false} 
+		c <- seed{id: string(extractSeed(string(o))), pass: false}
 		return
 	}
-	  c <- seed{id: string(extractSeed(string(o))), pass: true} 
+	c <- seed{id: string(extractSeed(string(o))), pass: true}
 }
 
 func extractSeed(s string) string {
